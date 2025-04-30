@@ -1,38 +1,34 @@
 import streamlit as st
-import nltk
+import re
+import os
 import gdown
 import pickle
-import os
-
-# Download NLTK data
-nltk.download('punkt', quiet=True)
 
 # Google Drive direct download links
 model_url = 'https://drive.google.com/uc?id=1_dFRVVt6RQyNNCtcMKOiWfqIjEo1rwal'
 vectorizer_url = 'https://drive.google.com/uc?id=1vvd_j6v-TNhoHhzyNYP9aY-NG_V6jdEi'
 
-# Filenames to save downloaded files
+# Filenames
 model_file = 'spam_model.pkl'
 vectorizer_file = 'vectorizer.pkl'
 
 # Download model and vectorizer if not already present
 if not os.path.exists(model_file):
     gdown.download(model_url, model_file, quiet=False)
-
 if not os.path.exists(vectorizer_file):
     gdown.download(vectorizer_url, vectorizer_file, quiet=False)
 
-# Load the model and vectorizer
+# Load them
 with open(model_file, 'rb') as f:
     model = pickle.load(f)
-
 with open(vectorizer_file, 'rb') as f:
     vectorizer = pickle.load(f)
 
-# Preprocessing function
+# Simple text preprocessing (no nltk)
 def transform_text(text):
     text = text.lower()
-    text = nltk.word_tokenize(text)
+    text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
+    text = text.split()
     return ' '.join(text)
 
 # Streamlit UI
