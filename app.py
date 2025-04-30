@@ -42,7 +42,7 @@ This mini-project uses a **Machine Learning model** to detect whether a message 
 - Naive Bayes Classifier  
 
 👨‍💻 Created by: *Your Name Here*
-""")
+""", unsafe_allow_html=True)
 
 st.sidebar.markdown("---")
 st.sidebar.subheader("💬 Try Sample Messages:")
@@ -55,13 +55,31 @@ for msg, label in sample_msgs.items():
     st.sidebar.write(f"**{label}:** \"{msg}\"")
 
 # --- Main Page ---
-st.markdown("<h1 style='text-align: center;'>📩 Spam Message Detector</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Paste a message below to check if it's <b>Spam</b> or <b>Ham</b>.</p>", unsafe_allow_html=True)
+st.markdown("""
+    <h1 style='text-align: center; color: #4A90E2;'>📩 Spam Message Detector</h1>
+    <p style='text-align: center; font-size: 18px;'>Paste a message below to check if it's <b>Spam</b> or <b>Ham</b>.</p>
+    <hr style="border:1px solid #f0f0f0;">
+""", unsafe_allow_html=True)
 
 # Input box
-input_sms = st.text_area("🖊️ Enter your message here:")
+input_sms = st.text_area("🖊️ Enter your message here:", height=150, max_chars=500, key="input_sms")
 
-# Predict button
+# Predict button with style
+button_style = """
+    <style>
+    .css-1emrehy.edgvbvh3 {
+        background-color: #4CAF50;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    </style>
+"""
+st.markdown(button_style, unsafe_allow_html=True)
+
 if st.button("🔍 Predict"):
     if input_sms.strip() == "":
         st.warning("⚠️ Please enter some text before predicting.")
@@ -72,9 +90,17 @@ if st.button("🔍 Predict"):
 
         st.markdown("---")
         if prediction == "spam":
-            st.error("🚫 **This message is SPAM** – Looks suspicious or promotional.")
+            st.error("🚫 **This message is SPAM** – Looks suspicious or promotional.", icon="🚫")
         else:
-            st.success("✅ **This message is HAM** – It seems safe and legitimate.")
+            st.success("✅ **This message is HAM** – It seems safe and legitimate.", icon="✅")
 
+        # Display processed text for user review
         st.markdown("### 🔁 Processed Text:")
         st.code(transformed_sms)
+
+# Footer with custom style
+st.markdown("""
+    <hr style="border:1px solid #f0f0f0;">
+    <p style='text-align: center; font-size: 14px; color: #4A90E2;'>Built with ❤️ using Streamlit & Scikit-learn</p>
+""", unsafe_allow_html=True)
+
