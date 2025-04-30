@@ -1,6 +1,6 @@
 import streamlit as st
-import pickle
 import nltk
+import pickle
 import string
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
@@ -9,8 +9,8 @@ from nltk.stem.porter import PorterStemmer
 nltk.download('punkt')
 nltk.download('stopwords')
 
-# Load the trained model and vectorizer
-model = pickle.load(open('model2.pkl', 'rb'))  # Must be pre-trained
+# Load model and vectorizer
+model = pickle.load(open('model2.pkl', 'rb'))
 vectorizer = pickle.load(open('vectorizer2.pkl', 'rb'))
 
 # Initialize stemmer
@@ -23,57 +23,30 @@ def transform_text(text):
 
     y = []
     for word in text:
-        if word.isalnum():
-            y.append(word)
-
-    text = y[:]
-    y.clear()
-
-    for word in text:
-        if word not in stopwords.words('english') and word not in string.punctuation:
-            y.append(word)
-
-    text = y[:]
-    y.clear()
-
-    for word in text:
-        y.append(ps.stem(word))
+        if word.isalnum() and word not in stopwords.words('english') and word not in string.punctuation:
+            y.append(ps.stem(word))
 
     return " ".join(y)
 
-# ------------------- Streamlit UI -------------------
+# Streamlit UI
+st.title("📩 Spam Message Classifier")
+st.markdown("Enter a message below to check if it's **Spam** or **Not Spam**.")
 
-st.set_page_config(page_title="Spam Classifier", page_icon="📩", layout="centered")
+# Input from user
+input_sms = st.text_area("Enter the message here")
 
-st.markdown("""
-    <h1 style='text-align: center; color: #4A90E2;'>📩 Email/SMS Spam Classifier</h1>
-    <p style='text-align: center; font-size: 18px;'>Instantly detect spam messages using a trained ML model.</p>
-    <hr style="border:1px solid #f0f0f0;">
-""", unsafe_allow_html=True)
+if st.button('Predict'):
+    # 1. Preprocess
+    transformed_sms = transform_text(input_sms)
 
-# Input area
-message = st.text_area("💬 Enter your message below:", height=150)
+    # 2. Vectorize
+    vector_input = vectorizer.transform([transformed_sms])
 
-# Predict button
-if st.button('🚀 Predict'):
-    if message.strip() == "":
-        st.warning("⚠️ Please enter a message to classify.")
+    # 3. Predict
+    result = model.predict(vector_input)[0]
+
+    # 4. Display result
+    if result == 1:
+        st.error("🚫 This message is **Spam**.")
     else:
-        # Preprocess and predict
-        transformed_message = transform_text(message)
-        vector_input = vectorizer.transform([transformed_message])
-        result = model.predict(vector_input)[0]
-
-        # Display result
-        if result == 1 or result == 'spam':
-            st.error("🚫 This message is **SPAM**!")
-        else:
-            st.success("✅ This message is **HAM** (not spam).")
-
-        st.balloons()
-
-# Footer
-st.markdown("""
-    <hr style="border:1px solid #f0f0f0;">
-    <p style='text-align: center; font-size: 14px;'>Built with ❤️ using Streamlit & Scikit-learn</p>
-""", unsafe_allow_html=True)
+        st.success("✅ This message is **Not Spam**.")
